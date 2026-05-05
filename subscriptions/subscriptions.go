@@ -15,10 +15,17 @@ type ActivationRequest struct {
 }
 
 func Activate(request ActivationRequest, invoices *billing.Store, entitlements *entitlement.Store) error {
-	if request.Account.ID == "" || request.Plan == "" {
-		return fmt.Errorf("account and plan are required")
+	if err := activationDecision(request.Account, request.Plan); err != nil {
+		return err
 	}
 	invoices.Create(billing.Invoice{AccountID: request.Account.ID, AmountCents: request.Amount, Paid: true})
 	entitlements.Enable(request.Account.ID, request.Plan)
+	return nil
+}
+
+func activationDecision(account account.Account, plan string) error {
+	if account.ID == "" || plan == "" {
+		return fmt.Errorf("account and plan are required")
+	}
 	return nil
 }
