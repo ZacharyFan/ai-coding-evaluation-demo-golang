@@ -28,10 +28,10 @@ func ProcessReturn(request Request, stock inventory.Snapshot, book *ledger.Memor
 	if err != nil {
 		return Result{}, err
 	}
-	if err := inventory.Restock(stock, request.SKU, request.Quantity); err != nil {
+	if err := book.Record(ledger.Entry{ID: request.Order.ID, AmountCents: -refundCents}); err != nil {
 		return Result{}, err
 	}
-	if err := book.Record(ledger.Entry{ID: request.Order.ID, AmountCents: -refundCents}); err != nil {
+	if err := inventory.Restock(stock, request.SKU, request.Quantity); err != nil {
 		return Result{}, err
 	}
 	return Result{RefundCents: refundCents}, nil
