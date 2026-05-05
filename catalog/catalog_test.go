@@ -14,3 +14,10 @@ func TestNormalizeSKU(t *testing.T) {
 		t.Fatalf("NormalizeSKU = %q, want SKU-1", got)
 	}
 }
+
+func TestValidateProductRejectsNegativePrice(t *testing.T) {
+	err := ValidateProduct(Product{SKU: "sku-1", Name: "Bad", PriceCents: -1, Status: StatusActive})
+	if err == nil {
+		t.Fatal("ValidateProduct accepted negative price; want error")
+	}
+}
