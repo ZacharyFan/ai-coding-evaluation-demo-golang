@@ -1,0 +1,14 @@
+package go_bugfix_l1_c3
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/inventory"
+)
+
+func TestAvailableNeverReturnsNegativeStock(t *testing.T) {
+	got := inventory.Available(inventory.Item{SKU: "sku-1", Stock: 3, Reserved: 5})
+	if got != 0 {
+		t.Fatalf("Available over-reserved stock = %d, want 0", got)
+	}
+}

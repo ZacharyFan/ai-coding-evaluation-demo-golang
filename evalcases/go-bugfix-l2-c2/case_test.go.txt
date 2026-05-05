@@ -1,0 +1,17 @@
+package go_bugfix_l2_c2
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/shipping"
+)
+
+func TestRemoteSurchargeAppliesOncePerShipment(t *testing.T) {
+	got, err := shipping.Rate(shipping.Shipment{Items: 3, Remote: true})
+	if err != nil {
+		t.Fatalf("Rate returned error: %v", err)
+	}
+	if got != 1050 {
+		t.Fatalf("remote Rate = %d, want 1050", got)
+	}
+}

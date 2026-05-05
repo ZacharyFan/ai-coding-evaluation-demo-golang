@@ -1,0 +1,20 @@
+package go_feature_l1_c3
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+)
+
+func TestNormalizeEmail(t *testing.T) {
+	got, err := account.NormalizeEmail("  Alice@Example.COM  ")
+	if err != nil {
+		t.Fatalf("NormalizeEmail returned error: %v", err)
+	}
+	if got != "alice@example.com" {
+		t.Fatalf("NormalizeEmail = %q, want alice@example.com", got)
+	}
+	if _, err := account.NormalizeEmail("missing-at"); err == nil {
+		t.Fatal("NormalizeEmail returned nil error for invalid address")
+	}
+}

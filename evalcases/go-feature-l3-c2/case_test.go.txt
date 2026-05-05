@@ -1,0 +1,28 @@
+package go_feature_l3_c2
+
+import (
+	"reflect"
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+)
+
+func TestSplitFulfillmentAllocatesDeterministically(t *testing.T) {
+	got, err := orders.SplitFulfillment(
+		[]orders.Line{{SKU: "A", UnitCents: 100, Quantity: 4}},
+		map[string]map[string]int{
+			"west": {"A": 3},
+			"east": {"A": 2},
+		},
+	)
+	if err != nil {
+		t.Fatalf("SplitFulfillment returned error: %v", err)
+	}
+	want := []orders.Fulfillment{
+		{Warehouse: "east", Quantities: map[string]int{"A": 2}},
+		{Warehouse: "west", Quantities: map[string]int{"A": 2}},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("SplitFulfillment = %#v, want %#v", got, want)
+	}
+}

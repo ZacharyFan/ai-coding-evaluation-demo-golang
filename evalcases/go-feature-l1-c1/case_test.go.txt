@@ -1,0 +1,19 @@
+package go_feature_l1_c1
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/cart"
+)
+
+func TestFreeShippingEligible(t *testing.T) {
+	if !cart.FreeShippingEligible(5000) {
+		t.Fatal("5000 cents should be free-shipping eligible")
+	}
+	if cart.FreeShippingEligible(4999) {
+		t.Fatal("4999 cents should not be free-shipping eligible")
+	}
+	if cart.FreeShippingEligible(-1) {
+		t.Fatal("negative totals should not be free-shipping eligible")
+	}
+}

@@ -1,0 +1,21 @@
+package go_feature_l2_c2
+
+import (
+	"reflect"
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+)
+
+func TestSummarizeByStatus(t *testing.T) {
+	got := orders.SummarizeByStatus([]orders.Order{
+		{ID: "1", Status: "paid"},
+		{ID: "2", Status: "pending"},
+		{ID: "3", Status: "paid"},
+		{ID: "4"},
+	})
+	want := map[string]int{"paid": 2, "pending": 1}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("SummarizeByStatus = %#v, want %#v", got, want)
+	}
+}

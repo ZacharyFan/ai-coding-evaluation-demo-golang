@@ -1,0 +1,21 @@
+package go_feature_l3_c1
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/pricing"
+)
+
+func TestApplyTieredDiscountChoosesHighestReachedTier(t *testing.T) {
+	got, err := pricing.ApplyTieredDiscount(12000, []pricing.Tier{
+		{MinimumSubtotalCents: 5000, PercentOff: 5},
+		{MinimumSubtotalCents: 10000, PercentOff: 12},
+		{MinimumSubtotalCents: 20000, PercentOff: 20},
+	})
+	if err != nil {
+		t.Fatalf("ApplyTieredDiscount returned error: %v", err)
+	}
+	if got != 10560 {
+		t.Fatalf("ApplyTieredDiscount = %d, want 10560", got)
+	}
+}

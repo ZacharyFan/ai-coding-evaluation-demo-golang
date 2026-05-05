@@ -1,0 +1,21 @@
+package go_feature_l2_c1
+
+import (
+	"reflect"
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/inventory"
+)
+
+func TestReorderSuggestions(t *testing.T) {
+	got := inventory.ReorderSuggestions([]inventory.Item{
+		{SKU: "sku-b", Stock: 5, Reserved: 2, ReorderPoint: 3},
+		{SKU: "sku-a", Stock: 2, Reserved: 0, ReorderPoint: 2},
+		{SKU: "sku-c", Stock: 9, Reserved: 0, ReorderPoint: 3},
+		{SKU: "", Stock: 0, Reserved: 0, ReorderPoint: 1},
+	})
+	want := []string{"sku-a", "sku-b"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("ReorderSuggestions = %#v, want %#v", got, want)
+	}
+}

@@ -1,0 +1,17 @@
+package go_bugfix_l3_c3
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/pricing"
+)
+
+func TestInvoiceTotalTaxesAfterCredits(t *testing.T) {
+	got, err := pricing.InvoiceTotal(10000, 1000, 5000)
+	if err != nil {
+		t.Fatalf("InvoiceTotal returned error: %v", err)
+	}
+	if got != 5500 {
+		t.Fatalf("InvoiceTotal = %d, want 5500", got)
+	}
+}

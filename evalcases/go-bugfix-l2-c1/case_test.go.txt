@@ -1,0 +1,17 @@
+package go_bugfix_l2_c1
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+)
+
+func TestApplyCouponHonorsMinimumSubtotal(t *testing.T) {
+	got, err := orders.ApplyCoupon(4000, orders.Coupon{Code: "SAVE10", PercentOff: 10, MinimumSubtotalCents: 5000})
+	if err != nil {
+		t.Fatalf("ApplyCoupon returned error: %v", err)
+	}
+	if got != 4000 {
+		t.Fatalf("ApplyCoupon below minimum = %d, want unchanged subtotal 4000", got)
+	}
+}

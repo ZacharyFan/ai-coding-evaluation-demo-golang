@@ -1,0 +1,20 @@
+package go_feature_l2_c3
+
+import (
+	"testing"
+	"time"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/shipping"
+)
+
+func TestEstimateDeliverySkipsWeekends(t *testing.T) {
+	shipDate := time.Date(2026, time.May, 8, 9, 0, 0, 0, time.UTC)
+	got, err := shipping.EstimateDelivery(shipDate, 1)
+	if err != nil {
+		t.Fatalf("EstimateDelivery returned error: %v", err)
+	}
+	want := time.Date(2026, time.May, 11, 9, 0, 0, 0, time.UTC)
+	if !got.Equal(want) {
+		t.Fatalf("EstimateDelivery = %s, want %s", got, want)
+	}
+}

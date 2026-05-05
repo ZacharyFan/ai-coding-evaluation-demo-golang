@@ -1,0 +1,16 @@
+package go_bugfix_l1_c1
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/cart"
+)
+
+func TestApplyDiscountRejectsInvalidPercent(t *testing.T) {
+	tests := []int{-1, 101}
+	for _, percent := range tests {
+		if got, err := cart.ApplyDiscount(1000, percent); err == nil {
+			t.Fatalf("ApplyDiscount(1000, %d) = %d, nil error; want error", percent, got)
+		}
+	}
+}

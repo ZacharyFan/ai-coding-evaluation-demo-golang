@@ -1,0 +1,14 @@
+package go_bugfix_l2_c3
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+)
+
+func TestHeldAccountCannotUseCredit(t *testing.T) {
+	acct := account.Account{CreditLimitCents: 10000, BalanceCents: 1000, Hold: true}
+	if account.CanUseCredit(acct, 1000) {
+		t.Fatal("held account should not be allowed to use credit")
+	}
+}

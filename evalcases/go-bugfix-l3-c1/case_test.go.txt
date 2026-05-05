@@ -1,0 +1,20 @@
+package go_bugfix_l3_c1
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+)
+
+func TestPromotionDiscountUsesBestMatchingPromotion(t *testing.T) {
+	got, err := orders.PromotionDiscountCents(
+		orders.Line{SKU: "A", UnitCents: 1000, Quantity: 2},
+		[]orders.Promotion{{SKU: "A", PercentOff: 10}, {SKU: "A", PercentOff: 25}},
+	)
+	if err != nil {
+		t.Fatalf("PromotionDiscountCents returned error: %v", err)
+	}
+	if got != 500 {
+		t.Fatalf("PromotionDiscountCents stacked promotions = %d, want best discount 500", got)
+	}
+}

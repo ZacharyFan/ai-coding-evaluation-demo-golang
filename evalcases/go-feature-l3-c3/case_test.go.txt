@@ -1,0 +1,16 @@
+package go_feature_l3_c3
+
+import (
+	"testing"
+
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+)
+
+func TestLoyaltyTierUsesNetSpend(t *testing.T) {
+	if got := account.LoyaltyTier(account.Account{SpendCents: 120000, ReturnCents: 25000}); got != "silver" {
+		t.Fatalf("LoyaltyTier net 95000 = %q, want silver", got)
+	}
+	if got := account.LoyaltyTier(account.Account{SpendCents: 130000, ReturnCents: 10000}); got != "gold" {
+		t.Fatalf("LoyaltyTier net 120000 = %q, want gold", got)
+	}
+}
