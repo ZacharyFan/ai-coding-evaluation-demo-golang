@@ -27,8 +27,10 @@ func BuildQuote(request Request) (Quote, error) {
 	if len(request.Lines) == 0 {
 		return Quote{}, fmt.Errorf("at least one line is required")
 	}
-	if !inventory.HasAvailable(request.Inventory, request.Lines[0].SKU, request.Lines[0].Quantity) {
-		return Quote{}, fmt.Errorf("insufficient inventory for %s", request.Lines[0].SKU)
+	for _, line := range request.Lines {
+		if !inventory.HasAvailable(request.Inventory, line.SKU, line.Quantity) {
+			return Quote{}, fmt.Errorf("insufficient inventory for %s", line.SKU)
+		}
 	}
 	subtotal, err := cart.Subtotal(request.Lines)
 	if err != nil {
