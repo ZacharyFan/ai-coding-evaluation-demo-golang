@@ -27,7 +27,14 @@ func (w *Workflow) SettleInvoice(ctx context.Context, invoiceID string, amountCe
 	if invoiceID == "" {
 		return fmt.Errorf("invoice id is required")
 	}
-	captureID, err := w.Gateway.Capture(ctx, invoiceID, amountCents)
+	if w.captures == nil {
+		w.captures = map[string]string{}
+	}
+	captureID, ok := w.captures[invoiceID]
+	var err error
+	if !ok {
+		captureID, err = w.Gateway.Capture(ctx, invoiceID, amountCents)
+	}
 	if err != nil {
 		if err == ErrTransient {
 			captureID, err = w.Gateway.Capture(ctx, invoiceID, amountCents)
@@ -37,7 +44,9 @@ func (w *Workflow) SettleInvoice(ctx context.Context, invoiceID string, amountCe
 		}
 	}
 	if err := w.Ledger.RecordCapture(ctx, invoiceID, captureID, amountCents); err != nil {
+		w.captures[invoiceID] = captureID
 		return err
 	}
+	w.captures[invoiceID] = captureID
 	return nil
 }
