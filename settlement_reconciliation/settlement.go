@@ -48,7 +48,17 @@ func (r *Reconciler) Reconcile(ctx context.Context, batchID string) ([]Discrepan
 	if err != nil {
 		return nil, err
 	}
-	discrepancies := []Discrepancy{}
+	discrepancies := matchPayoutsToLedger(payouts, entries)
+	for _, discrepancy := range discrepancies {
+		if err := r.Notifications.Notify(ctx, batchID, fmt.Sprintf("%s:%s", discrepancy.ExternalID, discrepancy.Reason)); err != nil {
+			return discrepancies, err
+		}
+	}
+	return discrepancies, nil
+}
+
+func matchPayoutsToLedger(payouts []Payout, entries []LedgerEntry) []Discrepancy {
+	result := []Discrepancy{}
 	entryByID := map[string]LedgerEntry{}
 	for _, entry := range entries {
 		entryByID[entry.ExternalID] = entry
@@ -56,17 +66,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, batchID string) ([]Discrepan
 	for _, payout := range payouts {
 		entry, ok := entryByID[payout.ExternalID]
 		if !ok {
-			discrepancies = append(discrepancies, Discrepancy{ExternalID: payout.ExternalID, Reason: "missing ledger"})
+			result = append(result, Discrepancy{ExternalID: payout.ExternalID, Reason: "missing ledger"})
 			continue
 		}
 		if entry.AmountCents != payout.AmountCents {
-			discrepancies = append(discrepancies, Discrepancy{ExternalID: payout.ExternalID, Reason: "amount mismatch"})
+			result = append(result, Discrepancy{ExternalID: payout.ExternalID, Reason: "amount mismatch"})
 		}
 	}
-	for _, discrepancy := range discrepancies {
-		if err := r.Notifications.Notify(ctx, batchID, fmt.Sprintf("%s:%s", discrepancy.ExternalID, discrepancy.Reason)); err != nil {
-			return discrepancies, err
-		}
-	}
-	return discrepancies, nil
+	return result
 }
