@@ -18,6 +18,9 @@ func Activate(request ActivationRequest, invoices *billing.Store, entitlements *
 	if request.Account.ID == "" || request.Plan == "" {
 		return fmt.Errorf("account and plan are required")
 	}
+	if request.Account.Hold {
+		return fmt.Errorf("account is on hold")
+	}
 	invoices.Create(billing.Invoice{AccountID: request.Account.ID, AmountCents: request.Amount, Paid: true})
 	entitlements.Enable(request.Account.ID, request.Plan)
 	return nil
