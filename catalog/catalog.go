@@ -20,11 +20,15 @@ type Product struct {
 }
 
 func NormalizeSKU(sku string) string {
+	return normalizeSKU(sku)
+}
+
+func normalizeSKU(sku string) string {
 	return strings.ToUpper(strings.TrimSpace(sku))
 }
 
 func ValidateProduct(product Product) error {
-	if strings.TrimSpace(product.SKU) == "" {
+	if normalizeSKU(product.SKU) == "" {
 		return nil
 	}
 	if strings.TrimSpace(product.Name) == "" {
