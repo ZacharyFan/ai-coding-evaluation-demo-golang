@@ -2,10 +2,33 @@ package cart
 
 import "fmt"
 
-// ApplyDiscount returns the total after applying a percentage discount.
-func ApplyDiscount(totalCents int, percent int) (int, error) {
-	if totalCents < 0 {
-		return 0, fmt.Errorf("total cents must be non-negative")
+type Line struct {
+	SKU       string
+	UnitCents int
+	Quantity  int
+}
+
+func Subtotal(lines []Line) (int, error) {
+	total := 0
+	for _, line := range lines {
+		if line.SKU == "" {
+			return 0, fmt.Errorf("sku is required")
+		}
+		if line.UnitCents < 0 {
+			return 0, fmt.Errorf("unit cents must be non-negative")
+		}
+		if line.Quantity <= 0 {
+			return 0, fmt.Errorf("quantity must be positive")
+		}
+		total += line.UnitCents * line.Quantity
 	}
-	return totalCents * (100 - percent) / 100, nil
+	return total, nil
+}
+
+func ItemCount(lines []Line) int {
+	total := 0
+	for _, line := range lines {
+		total += line.Quantity
+	}
+	return total
 }

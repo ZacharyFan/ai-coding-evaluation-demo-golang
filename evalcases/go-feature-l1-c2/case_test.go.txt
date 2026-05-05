@@ -1,0 +1,17 @@
+package go_feature_l1_c2
+
+import (
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/taxrules"
+)
+
+func TestIsExemptCategory(t *testing.T) {
+	for _, category := range []string{"food", "Medicine", " MEDICINE "} {
+		if !taxrules.IsExemptCategory(category) {
+			t.Fatalf("IsExemptCategory(%q) = false, want true", category)
+		}
+	}
+	if taxrules.IsExemptCategory("hardware") {
+		t.Fatal("hardware should not be exempt")
+	}
+}

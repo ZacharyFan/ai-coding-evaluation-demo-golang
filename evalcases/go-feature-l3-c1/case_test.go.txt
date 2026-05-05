@@ -1,0 +1,32 @@
+package go_feature_l3_c1
+
+import (
+	"context"
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/fulfillment_saga"
+)
+
+func TestPlaceOrderIdempotencySkipsRepeatedServiceCalls(t *testing.T) {
+	inv := &countInventory{}
+	pay := &countPayment{}
+	carrier := &countCarrier{}
+	outbox := &countOutbox{}
+	coordinator := fulfillment_saga.Coordinator{Inventory: inv, Payment: pay, Carrier: carrier, Outbox: outbox}
+	request := fulfillment_saga.Request{OrderID: "ord-1", IdempotencyKey: "same-key", Lines: []fulfillment_saga.Line{{SKU: "sku-1", Quantity: 1}}, AmountCents: 1000}
+	if err := coordinator.PlaceOrder(context.Background(), request); err != nil { t.Fatalf("first PlaceOrder: %v", err) }
+	if err := coordinator.PlaceOrder(context.Background(), request); err != nil { t.Fatalf("second PlaceOrder: %v", err) }
+	if inv.reserves != 1 || pay.authorizes != 1 || carrier.shipments != 1 || outbox.events != 1 {
+		t.Fatalf("service calls = reserve %d authorize %d ship %d outbox %d, want all 1", inv.reserves, pay.authorizes, carrier.shipments, outbox.events)
+	}
+}
+
+type countInventory struct{ reserves int }
+func (f *countInventory) Reserve(context.Context, string, []fulfillment_saga.Line) error { f.reserves++; return nil }
+func (f *countInventory) Release(context.Context, string) error { return nil }
+type countPayment struct{ authorizes int }
+func (f *countPayment) Authorize(context.Context, string, int) error { f.authorizes++; return nil }
+func (f *countPayment) Void(context.Context, string) error { return nil }
+type countCarrier struct{ shipments int }
+func (f *countCarrier) CreateShipment(context.Context, string, []fulfillment_saga.Line) error { f.shipments++; return nil }
+type countOutbox struct{ events int }
+func (f *countOutbox) Publish(context.Context, string, string) error { f.events++; return nil }

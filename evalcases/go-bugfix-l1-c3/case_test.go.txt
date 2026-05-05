@@ -1,0 +1,16 @@
+package go_bugfix_l1_c3
+
+import (
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/customerprofile"
+)
+
+func TestNormalizeEmailLowercasesAddress(t *testing.T) {
+	got, err := customerprofile.NormalizeEmail("  Alice@Example.COM  ")
+	if err != nil {
+		t.Fatalf("NormalizeEmail returned error: %v", err)
+	}
+	if got != "alice@example.com" {
+		t.Fatalf("NormalizeEmail = %q, want alice@example.com", got)
+	}
+}

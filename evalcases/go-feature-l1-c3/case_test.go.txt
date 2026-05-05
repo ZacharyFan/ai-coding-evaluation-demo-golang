@@ -1,0 +1,18 @@
+package go_feature_l1_c3
+
+import (
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/customerprofile"
+)
+
+func TestDisplayName(t *testing.T) {
+	if got := customerprofile.DisplayName(customerprofile.Profile{FirstName: "Ada", LastName: "Lovelace", Email: "ada@example.com"}); got != "Ada Lovelace" {
+		t.Fatalf("DisplayName with names = %q, want Ada Lovelace", got)
+	}
+	if got := customerprofile.DisplayName(customerprofile.Profile{Email: "fallback@example.com"}); got != "fallback@example.com" {
+		t.Fatalf("DisplayName fallback = %q, want fallback@example.com", got)
+	}
+	if got := customerprofile.DisplayName(customerprofile.Profile{}); got != "anonymous" {
+		t.Fatalf("DisplayName empty = %q, want anonymous", got)
+	}
+}

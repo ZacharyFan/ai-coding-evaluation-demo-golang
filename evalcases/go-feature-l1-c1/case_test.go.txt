@@ -1,0 +1,24 @@
+package go_feature_l1_c1
+
+import (
+	"reflect"
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/catalog"
+)
+
+func TestFindAvailableByTag(t *testing.T) {
+	products := []catalog.Product{
+		{SKU: "B", Name: "B", PriceCents: 200, Status: catalog.StatusActive, Tags: []string{"office"}},
+		{SKU: "A", Name: "A", PriceCents: 100, Status: catalog.StatusActive, Tags: []string{"office"}},
+		{SKU: "C", Name: "C", PriceCents: 300, Status: catalog.StatusArchived, Tags: []string{"office"}},
+	}
+	got := catalog.FindAvailableByTag(products, "office")
+	want := []string{"A", "B"}
+	skus := []string{}
+	for _, product := range got {
+		skus = append(skus, product.SKU)
+	}
+	if !reflect.DeepEqual(skus, want) {
+		t.Fatalf("FindAvailableByTag SKUs = %#v, want %#v", skus, want)
+	}
+}

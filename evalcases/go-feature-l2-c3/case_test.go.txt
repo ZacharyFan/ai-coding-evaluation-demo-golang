@@ -1,0 +1,20 @@
+package go_feature_l2_c3
+
+import (
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/entitlement"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/subscriptions"
+)
+
+func TestPreviewPlanChange(t *testing.T) {
+	entitlements := &entitlement.Store{}
+	entitlements.Enable("acct-1", "basic")
+	preview, err := subscriptions.PreviewPlanChange(account.Account{ID: "acct-1"}, entitlements, "pro", 3000, 1000)
+	if err != nil {
+		t.Fatalf("PreviewPlanChange returned error: %v", err)
+	}
+	if preview.ProratedCreditCents != 1000 || preview.NextChargeCents != 2000 {
+		t.Fatalf("PreviewPlanChange = %#v, want credit=1000 next=2000", preview)
+	}
+}

@@ -1,0 +1,16 @@
+package go_bugfix_l1_c2
+
+import (
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/taxrules"
+)
+
+func TestTaxCentsRoundsHalfUp(t *testing.T) {
+	got, err := taxrules.TaxCents(200, 825)
+	if err != nil {
+		t.Fatalf("TaxCents returned error: %v", err)
+	}
+	if got != 17 {
+		t.Fatalf("TaxCents(200, 825) = %d, want 17", got)
+	}
+}

@@ -1,0 +1,22 @@
+package go_feature_l2_c1
+
+import (
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/cart"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/checkout"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/inventory"
+)
+
+func TestBuildDiscountedQuoteUsesDiscountBeforeTaxAndShipping(t *testing.T) {
+	quote, err := checkout.BuildDiscountedQuote(checkout.Request{
+		Lines: []cart.Line{{SKU: "sku-1", UnitCents: 10000, Quantity: 1}},
+		Inventory: inventory.Snapshot{"sku-1": 1},
+		TaxBasisPoints: 1000,
+	}, 10)
+	if err != nil {
+		t.Fatalf("BuildDiscountedQuote returned error: %v", err)
+	}
+	if quote.SubtotalCents != 9000 || quote.TaxCents != 900 || quote.ShippingCents == 0 || quote.TotalCents != 10500 {
+		t.Fatalf("discounted quote = %#v, want subtotal=9000 tax=900 shipping=600 total=10500", quote)
+	}
+}

@@ -1,0 +1,18 @@
+package go_feature_l2_c2
+
+import (
+	"testing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/returns"
+)
+
+func TestPreviewReturn(t *testing.T) {
+	preview := returns.PreviewReturn(returns.Request{Order: orders.Order{ID: "ord-1", Status: orders.StatusDelivered, TotalCents: 5000}, RestockingFeeCents: 500})
+	if !preview.Eligible || preview.RefundCents != 4500 || preview.Reason != "" {
+		t.Fatalf("PreviewReturn delivered = %#v, want eligible refund 4500", preview)
+	}
+	blocked := returns.PreviewReturn(returns.Request{Order: orders.Order{ID: "ord-2", Status: orders.StatusCanceled, TotalCents: 5000}})
+	if blocked.Eligible || blocked.Reason == "" {
+		t.Fatalf("PreviewReturn canceled = %#v, want ineligible reason", blocked)
+	}
+}
