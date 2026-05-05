@@ -25,7 +25,7 @@ func NormalizeSKU(sku string) string {
 
 func ValidateProduct(product Product) error {
 	if strings.TrimSpace(product.SKU) == "" {
-		return nil
+		return fmt.Errorf("sku is required")
 	}
 	if strings.TrimSpace(product.Name) == "" {
 		return fmt.Errorf("name is required")
