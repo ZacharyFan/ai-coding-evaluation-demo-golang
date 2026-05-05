@@ -29,7 +29,7 @@ func (w *Workflow) SettleInvoice(ctx context.Context, invoiceID string, amountCe
 	}
 	captureID, err := w.Gateway.Capture(ctx, invoiceID, amountCents)
 	if err != nil {
-		if err == ErrTransient {
+		if shouldRetryPaymentError(err) {
 			captureID, err = w.Gateway.Capture(ctx, invoiceID, amountCents)
 		}
 		if err != nil {
@@ -40,4 +40,8 @@ func (w *Workflow) SettleInvoice(ctx context.Context, invoiceID string, amountCe
 		return err
 	}
 	return nil
+}
+
+func shouldRetryPaymentError(err error) bool {
+	return err == ErrTransient
 }
