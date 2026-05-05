@@ -33,7 +33,7 @@ func TaxCents(amountCents int, rateBasisPoints int) (int, error) {
 	if rateBasisPoints < 0 || rateBasisPoints > MaxRateBasisPoints {
 		return 0, fmt.Errorf("rate basis points out of range")
 	}
-	return amountCents * rateBasisPoints / 10000, nil
+	return (amountCents*rateBasisPoints + 5000) / 10000, nil
 }
 
 func ApplyRule(amountCents int, rule Rule) (int, error) {
