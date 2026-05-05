@@ -24,6 +24,10 @@ func NormalizeEmail(email string) (string, error) {
 }
 
 func Validate(profile Profile) error {
+	return validateProfileIdentity(profile)
+}
+
+func validateProfileIdentity(profile Profile) error {
 	if strings.TrimSpace(profile.ID) == "" {
 		return fmt.Errorf("id is required")
 	}
