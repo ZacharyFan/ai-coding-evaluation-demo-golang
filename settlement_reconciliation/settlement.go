@@ -63,10 +63,18 @@ func (r *Reconciler) Reconcile(ctx context.Context, batchID string) ([]Discrepan
 			discrepancies = append(discrepancies, Discrepancy{ExternalID: payout.ExternalID, Reason: "amount mismatch"})
 		}
 	}
+	if r.notified == nil {
+		r.notified = map[string]struct{}{}
+	}
 	for _, discrepancy := range discrepancies {
+		notificationKey := batchID + ":" + discrepancy.ExternalID + ":" + discrepancy.Reason
+		if _, ok := r.notified[notificationKey]; ok {
+			continue
+		}
 		if err := r.Notifications.Notify(ctx, batchID, fmt.Sprintf("%s:%s", discrepancy.ExternalID, discrepancy.Reason)); err != nil {
 			return discrepancies, err
 		}
+		r.notified[notificationKey] = struct{}{}
 	}
 	return discrepancies, nil
 }
