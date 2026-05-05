@@ -55,10 +55,16 @@ func (c *Coordinator) PlaceOrder(ctx context.Context, request Request) error {
 		return err
 	}
 	if err := c.Carrier.CreateShipment(ctx, request.OrderID, request.Lines); err != nil {
+		_ = compensateAuthorization(ctx, c.Inventory, c.Payment, request.IdempotencyKey)
 		return err
 	}
 	if err := c.Outbox.Publish(ctx, "fulfillment.created", request.OrderID); err != nil {
 		return err
 	}
 	return nil
+}
+
+func compensateAuthorization(ctx context.Context, inventory InventoryClient, payment PaymentClient, idempotencyKey string) error {
+	_ = payment.Void(ctx, idempotencyKey)
+	return inventory.Release(ctx, idempotencyKey)
 }
