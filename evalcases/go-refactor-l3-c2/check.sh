@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="${1:?}"
-grep -R "func validateReservationRequest" "$ROOT/inventory" >/dev/null
-grep -R "validateReservationRequest(l, sku, quantity)" "$ROOT/inventory" >/dev/null
+grep -R "func shouldRetryPaymentError" "$ROOT/payment_saga/payment.go" >/dev/null
+grep -R "shouldRetryPaymentError(err)" "$ROOT/payment_saga/payment.go" >/dev/null

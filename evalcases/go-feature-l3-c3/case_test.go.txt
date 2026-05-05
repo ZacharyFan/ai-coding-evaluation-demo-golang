@@ -1,16 +1,20 @@
 package go_feature_l3_c3
 
 import (
+	"reflect"
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/settlement_reconciliation"
 )
 
-func TestLoyaltyTierUsesNetSpend(t *testing.T) {
-	if got := account.LoyaltyTier(account.Account{SpendCents: 120000, ReturnCents: 25000}); got != "silver" {
-		t.Fatalf("LoyaltyTier net 95000 = %q, want silver", got)
-	}
-	if got := account.LoyaltyTier(account.Account{SpendCents: 130000, ReturnCents: 10000}); got != "gold" {
-		t.Fatalf("LoyaltyTier net 120000 = %q, want gold", got)
+func TestBuildReportSortsDiscrepancies(t *testing.T) {
+	report := settlement_reconciliation.BuildReport(
+		[]settlement_reconciliation.Payout{{ExternalID: "b", AmountCents: 100}, {ExternalID: "a", AmountCents: 100}},
+		[]settlement_reconciliation.LedgerEntry{{ExternalID: "b", AmountCents: 90}},
+	)
+	got := []string{}
+	for _, d := range report.Discrepancies { got = append(got, d.ExternalID+":"+d.Reason) }
+	want := []string{"a:missing ledger", "b:amount mismatch"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("BuildReport discrepancies = %#v, want %#v", got, want)
 	}
 }

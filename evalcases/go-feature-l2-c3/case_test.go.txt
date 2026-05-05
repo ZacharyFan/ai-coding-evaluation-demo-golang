@@ -2,19 +2,19 @@ package go_feature_l2_c3
 
 import (
 	"testing"
-	"time"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/shipping"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/entitlement"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/subscriptions"
 )
 
-func TestEstimateDeliverySkipsWeekends(t *testing.T) {
-	shipDate := time.Date(2026, time.May, 8, 9, 0, 0, 0, time.UTC)
-	got, err := shipping.EstimateDelivery(shipDate, 1)
+func TestPreviewPlanChange(t *testing.T) {
+	entitlements := &entitlement.Store{}
+	entitlements.Enable("acct-1", "basic")
+	preview, err := subscriptions.PreviewPlanChange(account.Account{ID: "acct-1"}, entitlements, "pro", 3000, 1000)
 	if err != nil {
-		t.Fatalf("EstimateDelivery returned error: %v", err)
+		t.Fatalf("PreviewPlanChange returned error: %v", err)
 	}
-	want := time.Date(2026, time.May, 11, 9, 0, 0, 0, time.UTC)
-	if !got.Equal(want) {
-		t.Fatalf("EstimateDelivery = %s, want %s", got, want)
+	if preview.ProratedCreditCents != 1000 || preview.NextChargeCents != 2000 {
+		t.Fatalf("PreviewPlanChange = %#v, want credit=1000 next=2000", preview)
 	}
 }

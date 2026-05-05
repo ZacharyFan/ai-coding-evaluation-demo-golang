@@ -2,23 +2,16 @@ package shipping
 
 import "fmt"
 
-type Shipment struct {
-	Items     int
-	Remote    bool
-	Expedited bool
-	Zone      string
-}
-
-func Rate(shipment Shipment) (int, error) {
-	if shipment.Items <= 0 {
-		return 0, fmt.Errorf("items must be positive")
+func Rate(itemCount int, expedited bool, discountedSubtotalCents int) (int, error) {
+	if itemCount <= 0 {
+		return 0, fmt.Errorf("item count must be positive")
 	}
-	total := 500 + shipment.Items*100
-	if shipment.Remote {
-		total += shipment.Items * 250
+	if discountedSubtotalCents >= 10000 {
+		return 0, nil
 	}
-	if shipment.Expedited {
-		total += 700
+	total := 500 + itemCount*100
+	if expedited {
+		total += 750
 	}
 	return total, nil
 }

@@ -1,28 +1,25 @@
 package go_feature_l3_c2
 
 import (
-	"reflect"
+	"context"
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/payment_saga"
 )
 
-func TestSplitFulfillmentAllocatesDeterministically(t *testing.T) {
-	got, err := orders.SplitFulfillment(
-		[]orders.Line{{SKU: "A", UnitCents: 100, Quantity: 4}},
-		map[string]map[string]int{
-			"west": {"A": 3},
-			"east": {"A": 2},
-		},
-	)
-	if err != nil {
-		t.Fatalf("SplitFulfillment returned error: %v", err)
-	}
-	want := []orders.Fulfillment{
-		{Warehouse: "east", Quantities: map[string]int{"A": 2}},
-		{Warehouse: "west", Quantities: map[string]int{"A": 2}},
-	}
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("SplitFulfillment = %#v, want %#v", got, want)
+func TestRefundInvoiceRecordsGatewayAndLedger(t *testing.T) {
+	gateway := &refundGateway{}
+	ledger := &refundLedger{}
+	workflow := payment_saga.Workflow{Gateway: gateway, Ledger: ledger}
+	result, err := workflow.RefundInvoice(context.Background(), "inv-1", 700)
+	if err != nil { t.Fatalf("RefundInvoice returned error: %v", err) }
+	if result.RefundID != "refund-1" || gateway.refunds != 1 || ledger.refunds != 1 {
+		t.Fatalf("refund result=%#v gateway=%d ledger=%d, want refund-1/1/1", result, gateway.refunds, ledger.refunds)
 	}
 }
+
+type refundGateway struct{ refunds int }
+func (g *refundGateway) Capture(context.Context, string, int) (string, error) { return "cap-1", nil }
+func (g *refundGateway) Refund(context.Context, string, int) (string, error) { g.refunds++; return "refund-1", nil }
+type refundLedger struct{ refunds int }
+func (l *refundLedger) RecordCapture(context.Context, string, string, int) error { return nil }
+func (l *refundLedger) RecordRefund(context.Context, string, string, int) error { l.refunds++; return nil }

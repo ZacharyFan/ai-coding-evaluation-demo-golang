@@ -2,19 +2,16 @@ package go_feature_l1_c2
 
 import (
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/pricing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/taxrules"
 )
 
-func TestFormatCents(t *testing.T) {
-	tests := map[int]string{
-		12345: "USD 123.45",
-		0:     "USD 0.00",
-		-123:  "-USD 1.23",
-	}
-	for cents, want := range tests {
-		if got := pricing.FormatCents(cents, "USD"); got != want {
-			t.Fatalf("FormatCents(%d, USD) = %q, want %q", cents, got, want)
+func TestIsExemptCategory(t *testing.T) {
+	for _, category := range []string{"food", "Medicine", " MEDICINE "} {
+		if !taxrules.IsExemptCategory(category) {
+			t.Fatalf("IsExemptCategory(%q) = false, want true", category)
 		}
+	}
+	if taxrules.IsExemptCategory("hardware") {
+		t.Fatal("hardware should not be exempt")
 	}
 }

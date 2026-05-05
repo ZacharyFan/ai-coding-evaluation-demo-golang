@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="${1:?}"
-grep -R "func TestRateRejectsEmptyShipments" "$ROOT/shipping/shipping_test.go" >/dev/null
+grep -R "func TestActivateRejectsHeldAccountWithoutSideEffects" "$ROOT/subscriptions/subscriptions_test.go" >/dev/null
 cd "$ROOT"
-go test ./shipping -run '^TestRateRejectsEmptyShipments$' -count=1
+go test ./subscriptions -run '^TestActivateRejectsHeldAccountWithoutSideEffects$' -count=1

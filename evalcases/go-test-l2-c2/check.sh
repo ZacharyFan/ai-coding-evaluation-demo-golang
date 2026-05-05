@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="${1:?}"
-grep -R "func TestCanTransitionRejectsBackwardTransitions" "$ROOT/orders/orders_test.go" >/dev/null
+grep -R "func TestProcessReturnDoesNotRestockWhenLedgerFails" "$ROOT/returns/returns_test.go" >/dev/null
 cd "$ROOT"
-go test ./orders -run '^TestCanTransitionRejectsBackwardTransitions$' -count=1
+go test ./returns -run '^TestProcessReturnDoesNotRestockWhenLedgerFails$' -count=1

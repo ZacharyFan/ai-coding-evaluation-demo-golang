@@ -2,13 +2,20 @@ package go_bugfix_l2_c3
 
 import (
 	"testing"
-
 	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/billing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/entitlement"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/subscriptions"
 )
 
-func TestHeldAccountCannotUseCredit(t *testing.T) {
-	acct := account.Account{CreditLimitCents: 10000, BalanceCents: 1000, Hold: true}
-	if account.CanUseCredit(acct, 1000) {
-		t.Fatal("held account should not be allowed to use credit")
+func TestActivateRejectsHeldAccountWithoutSideEffects(t *testing.T) {
+	invoices := &billing.Store{}
+	entitlements := &entitlement.Store{}
+	err := subscriptions.Activate(subscriptions.ActivationRequest{Account: account.Account{ID: "acct-1", Hold: true}, Plan: "pro", Amount: 2000}, invoices, entitlements)
+	if err == nil {
+		t.Fatal("Activate returned nil error for held account")
+	}
+	if len(invoices.Invoices) != 0 || entitlements.IsActive("acct-1") {
+		t.Fatalf("held activation caused side effects: invoices=%d entitlement=%v", len(invoices.Invoices), entitlements.IsActive("acct-1"))
 	}
 }

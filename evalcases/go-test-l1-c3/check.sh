@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="${1:?}"
-grep -R "func TestMaskEmailPreservesDomain" "$ROOT/account/account_test.go" >/dev/null
+grep -R "func TestCanSendMarketingRejectsDeletedProfiles" "$ROOT/customerprofile/customerprofile_test.go" >/dev/null
 cd "$ROOT"
-go test ./account -run '^TestMaskEmailPreservesDomain$' -count=1
+go test ./customerprofile -run '^TestCanSendMarketingRejectsDeletedProfiles$' -count=1

@@ -1,21 +1,22 @@
 package go_feature_l2_c1
 
 import (
-	"reflect"
 	"testing"
-
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/cart"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/checkout"
 	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/inventory"
 )
 
-func TestReorderSuggestions(t *testing.T) {
-	got := inventory.ReorderSuggestions([]inventory.Item{
-		{SKU: "sku-b", Stock: 5, Reserved: 2, ReorderPoint: 3},
-		{SKU: "sku-a", Stock: 2, Reserved: 0, ReorderPoint: 2},
-		{SKU: "sku-c", Stock: 9, Reserved: 0, ReorderPoint: 3},
-		{SKU: "", Stock: 0, Reserved: 0, ReorderPoint: 1},
-	})
-	want := []string{"sku-a", "sku-b"}
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("ReorderSuggestions = %#v, want %#v", got, want)
+func TestBuildDiscountedQuoteUsesDiscountBeforeTaxAndShipping(t *testing.T) {
+	quote, err := checkout.BuildDiscountedQuote(checkout.Request{
+		Lines: []cart.Line{{SKU: "sku-1", UnitCents: 10000, Quantity: 1}},
+		Inventory: inventory.Snapshot{"sku-1": 1},
+		TaxBasisPoints: 1000,
+	}, 10)
+	if err != nil {
+		t.Fatalf("BuildDiscountedQuote returned error: %v", err)
+	}
+	if quote.SubtotalCents != 9000 || quote.TaxCents != 900 || quote.ShippingCents == 0 || quote.TotalCents != 10500 {
+		t.Fatalf("discounted quote = %#v, want subtotal=9000 tax=900 shipping=600 total=10500", quote)
 	}
 }

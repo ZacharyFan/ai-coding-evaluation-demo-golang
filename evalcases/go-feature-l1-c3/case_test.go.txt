@@ -2,19 +2,17 @@ package go_feature_l1_c3
 
 import (
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/account"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/customerprofile"
 )
 
-func TestNormalizeEmail(t *testing.T) {
-	got, err := account.NormalizeEmail("  Alice@Example.COM  ")
-	if err != nil {
-		t.Fatalf("NormalizeEmail returned error: %v", err)
+func TestDisplayName(t *testing.T) {
+	if got := customerprofile.DisplayName(customerprofile.Profile{FirstName: "Ada", LastName: "Lovelace", Email: "ada@example.com"}); got != "Ada Lovelace" {
+		t.Fatalf("DisplayName with names = %q, want Ada Lovelace", got)
 	}
-	if got != "alice@example.com" {
-		t.Fatalf("NormalizeEmail = %q, want alice@example.com", got)
+	if got := customerprofile.DisplayName(customerprofile.Profile{Email: "fallback@example.com"}); got != "fallback@example.com" {
+		t.Fatalf("DisplayName fallback = %q, want fallback@example.com", got)
 	}
-	if _, err := account.NormalizeEmail("missing-at"); err == nil {
-		t.Fatal("NormalizeEmail returned nil error for invalid address")
+	if got := customerprofile.DisplayName(customerprofile.Profile{}); got != "anonymous" {
+		t.Fatalf("DisplayName empty = %q, want anonymous", got)
 	}
 }

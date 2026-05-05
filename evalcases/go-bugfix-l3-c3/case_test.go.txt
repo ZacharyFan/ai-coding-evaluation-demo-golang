@@ -1,17 +1,24 @@
 package go_bugfix_l3_c3
 
 import (
+	"context"
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/pricing"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/settlement_reconciliation"
 )
 
-func TestInvoiceTotalTaxesAfterCredits(t *testing.T) {
-	got, err := pricing.InvoiceTotal(10000, 1000, 5000)
-	if err != nil {
-		t.Fatalf("InvoiceTotal returned error: %v", err)
-	}
-	if got != 5500 {
-		t.Fatalf("InvoiceTotal = %d, want 5500", got)
+func TestReconcileNotificationIsIdempotentPerBatch(t *testing.T) {
+	notifications := &notifyCounter{}
+	reconciler := settlement_reconciliation.Reconciler{Payouts: payoutFake{}, Ledger: ledgerFake{}, Notifications: notifications}
+	if _, err := reconciler.Reconcile(context.Background(), "batch-1"); err != nil { t.Fatalf("first reconcile: %v", err) }
+	if _, err := reconciler.Reconcile(context.Background(), "batch-1"); err != nil { t.Fatalf("second reconcile: %v", err) }
+	if notifications.count != 1 {
+		t.Fatalf("notifications = %d, want 1", notifications.count)
 	}
 }
+
+type payoutFake struct{}
+func (p payoutFake) ListPayouts(context.Context, string) ([]settlement_reconciliation.Payout, error) { return []settlement_reconciliation.Payout{{ExternalID: "p-1", AmountCents: 1000}}, nil }
+type ledgerFake struct{}
+func (l ledgerFake) ListEntries(context.Context, string) ([]settlement_reconciliation.LedgerEntry, error) { return []settlement_reconciliation.LedgerEntry{{ExternalID: "p-1", AmountCents: 900}}, nil }
+type notifyCounter struct{ count int }
+func (n *notifyCounter) Notify(context.Context, string, string) error { n.count++; return nil }

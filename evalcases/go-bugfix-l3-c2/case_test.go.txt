@@ -1,18 +1,27 @@
 package go_bugfix_l3_c2
 
 import (
+	"context"
+	"fmt"
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/inventory"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/payment_saga"
 )
 
-func TestReserveManyIsAtomicOnFailure(t *testing.T) {
-	ledger := inventory.NewLedger(map[string]int{"A": 5, "B": 1})
-	err := ledger.ReserveMany(map[string]int{"A": 3, "B": 2})
-	if err == nil {
-		t.Fatal("ReserveMany returned nil error; want insufficient stock error")
-	}
-	if got := ledger.Snapshot()["A"]; got != 5 {
-		t.Fatalf("A availability after failed batch = %d, want 5", got)
+func TestSettleInvoiceDoesNotCaptureAgainAfterLedgerFailure(t *testing.T) {
+	gateway := &captureGateway{}
+	ledger := &flakyLedger{failFirst: true}
+	workflow := payment_saga.Workflow{Gateway: gateway, Ledger: ledger}
+	err := workflow.SettleInvoice(context.Background(), "inv-1", 1000)
+	if err == nil { t.Fatal("first SettleInvoice returned nil error; want ledger failure") }
+	if err := workflow.SettleInvoice(context.Background(), "inv-1", 1000); err != nil { t.Fatalf("retry SettleInvoice: %v", err) }
+	if gateway.captures != 1 || ledger.records != 2 {
+		t.Fatalf("captures=%d ledgerRecords=%d, want captures=1 ledgerRecords=2", gateway.captures, ledger.records)
 	}
 }
+
+type captureGateway struct{ captures int }
+func (g *captureGateway) Capture(context.Context, string, int) (string, error) { g.captures++; return "cap-1", nil }
+func (g *captureGateway) Refund(context.Context, string, int) (string, error) { return "ref-1", nil }
+type flakyLedger struct{ failFirst bool; records int }
+func (l *flakyLedger) RecordCapture(context.Context, string, string, int) error { l.records++; if l.failFirst { l.failFirst=false; return fmt.Errorf("ledger down") }; return nil }
+func (l *flakyLedger) RecordRefund(context.Context, string, string, int) error { return nil }

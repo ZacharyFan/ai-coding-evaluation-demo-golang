@@ -1,21 +1,18 @@
 package go_feature_l2_c2
 
 import (
-	"reflect"
 	"testing"
-
 	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/returns"
 )
 
-func TestSummarizeByStatus(t *testing.T) {
-	got := orders.SummarizeByStatus([]orders.Order{
-		{ID: "1", Status: "paid"},
-		{ID: "2", Status: "pending"},
-		{ID: "3", Status: "paid"},
-		{ID: "4"},
-	})
-	want := map[string]int{"paid": 2, "pending": 1}
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("SummarizeByStatus = %#v, want %#v", got, want)
+func TestPreviewReturn(t *testing.T) {
+	preview := returns.PreviewReturn(returns.Request{Order: orders.Order{ID: "ord-1", Status: orders.StatusDelivered, TotalCents: 5000}, RestockingFeeCents: 500})
+	if !preview.Eligible || preview.RefundCents != 4500 || preview.Reason != "" {
+		t.Fatalf("PreviewReturn delivered = %#v, want eligible refund 4500", preview)
+	}
+	blocked := returns.PreviewReturn(returns.Request{Order: orders.Order{ID: "ord-2", Status: orders.StatusCanceled, TotalCents: 5000}})
+	if blocked.Eligible || blocked.Reason == "" {
+		t.Fatalf("PreviewReturn canceled = %#v, want ineligible reason", blocked)
 	}
 }

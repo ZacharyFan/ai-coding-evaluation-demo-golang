@@ -1,19 +1,24 @@
 package go_feature_l1_c1
 
 import (
+	"reflect"
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/cart"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/catalog"
 )
 
-func TestFreeShippingEligible(t *testing.T) {
-	if !cart.FreeShippingEligible(5000) {
-		t.Fatal("5000 cents should be free-shipping eligible")
+func TestFindAvailableByTag(t *testing.T) {
+	products := []catalog.Product{
+		{SKU: "B", Name: "B", PriceCents: 200, Status: catalog.StatusActive, Tags: []string{"office"}},
+		{SKU: "A", Name: "A", PriceCents: 100, Status: catalog.StatusActive, Tags: []string{"office"}},
+		{SKU: "C", Name: "C", PriceCents: 300, Status: catalog.StatusArchived, Tags: []string{"office"}},
 	}
-	if cart.FreeShippingEligible(4999) {
-		t.Fatal("4999 cents should not be free-shipping eligible")
+	got := catalog.FindAvailableByTag(products, "office")
+	want := []string{"A", "B"}
+	skus := []string{}
+	for _, product := range got {
+		skus = append(skus, product.SKU)
 	}
-	if cart.FreeShippingEligible(-1) {
-		t.Fatal("negative totals should not be free-shipping eligible")
+	if !reflect.DeepEqual(skus, want) {
+		t.Fatalf("FindAvailableByTag SKUs = %#v, want %#v", skus, want)
 	}
 }

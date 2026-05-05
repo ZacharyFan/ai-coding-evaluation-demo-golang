@@ -2,16 +2,18 @@ package go_bugfix_l2_c1
 
 import (
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/cart"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/checkout"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/inventory"
 )
 
-func TestApplyCouponHonorsMinimumSubtotal(t *testing.T) {
-	got, err := orders.ApplyCoupon(4000, orders.Coupon{Code: "SAVE10", PercentOff: 10, MinimumSubtotalCents: 5000})
-	if err != nil {
-		t.Fatalf("ApplyCoupon returned error: %v", err)
-	}
-	if got != 4000 {
-		t.Fatalf("ApplyCoupon below minimum = %d, want unchanged subtotal 4000", got)
+func TestBuildQuoteRejectsAnyUnavailableLine(t *testing.T) {
+	_, err := checkout.BuildQuote(checkout.Request{
+		Lines: []cart.Line{{SKU: "sku-ok", UnitCents: 1000, Quantity: 1}, {SKU: "sku-missing", UnitCents: 500, Quantity: 2}},
+		Inventory: inventory.Snapshot{"sku-ok": 1, "sku-missing": 1},
+		TaxBasisPoints: 500,
+	})
+	if err == nil {
+		t.Fatal("BuildQuote accepted an unavailable second line; want error")
 	}
 }

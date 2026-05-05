@@ -1,20 +1,34 @@
 package go_bugfix_l3_c1
 
 import (
+	"context"
+	"fmt"
 	"testing"
-
-	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/orders"
+	"github.com/ZacharyFan/ai-coding-evaluation-demo-golang/fulfillment_saga"
 )
 
-func TestPromotionDiscountUsesBestMatchingPromotion(t *testing.T) {
-	got, err := orders.PromotionDiscountCents(
-		orders.Line{SKU: "A", UnitCents: 1000, Quantity: 2},
-		[]orders.Promotion{{SKU: "A", PercentOff: 10}, {SKU: "A", PercentOff: 25}},
-	)
-	if err != nil {
-		t.Fatalf("PromotionDiscountCents returned error: %v", err)
+func TestPlaceOrderCompensatesCarrierFailure(t *testing.T) {
+	inv := &fakeInventory{}
+	pay := &fakePayment{}
+	carrier := &fakeCarrier{err: fmt.Errorf("carrier down")}
+	outbox := &fakeOutbox{}
+	coordinator := fulfillment_saga.Coordinator{Inventory: inv, Payment: pay, Carrier: carrier, Outbox: outbox}
+	err := coordinator.PlaceOrder(context.Background(), fulfillment_saga.Request{OrderID: "ord-1", IdempotencyKey: "key-1", Lines: []fulfillment_saga.Line{{SKU: "sku-1", Quantity: 1}}, AmountCents: 1000})
+	if err == nil {
+		t.Fatal("PlaceOrder returned nil error; want carrier failure")
 	}
-	if got != 500 {
-		t.Fatalf("PromotionDiscountCents stacked promotions = %d, want best discount 500", got)
+	if inv.releases != 1 || pay.voids != 1 || outbox.published != 0 {
+		t.Fatalf("compensation releases=%d voids=%d outbox=%d, want 1/1/0", inv.releases, pay.voids, outbox.published)
 	}
 }
+
+type fakeInventory struct{ releases int }
+func (f *fakeInventory) Reserve(context.Context, string, []fulfillment_saga.Line) error { return nil }
+func (f *fakeInventory) Release(context.Context, string) error { f.releases++; return nil }
+type fakePayment struct{ voids int }
+func (f *fakePayment) Authorize(context.Context, string, int) error { return nil }
+func (f *fakePayment) Void(context.Context, string) error { f.voids++; return nil }
+type fakeCarrier struct{ err error }
+func (f *fakeCarrier) CreateShipment(context.Context, string, []fulfillment_saga.Line) error { return f.err }
+type fakeOutbox struct{ published int }
+func (f *fakeOutbox) Publish(context.Context, string, string) error { f.published++; return nil }

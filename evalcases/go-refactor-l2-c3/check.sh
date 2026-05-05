@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="${1:?}"
-grep -R "func remainingCreditCents" "$ROOT/account" >/dev/null
-grep -R "remainingCreditCents(account)" "$ROOT/account" >/dev/null
+grep -R "func activationDecision" "$ROOT/subscriptions/subscriptions.go" >/dev/null
+grep -R "activationDecision(request.Account, request.Plan)" "$ROOT/subscriptions/subscriptions.go" >/dev/null
