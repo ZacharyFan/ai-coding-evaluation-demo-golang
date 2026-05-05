@@ -47,6 +47,12 @@ func (c *Coordinator) PlaceOrder(ctx context.Context, request Request) error {
 	if request.IdempotencyKey == "" {
 		return fmt.Errorf("idempotency key is required")
 	}
+	if c.processed == nil {
+		c.processed = map[string]struct{}{}
+	}
+	if _, ok := c.processed[request.IdempotencyKey]; ok {
+		return nil
+	}
 	if err := c.Inventory.Reserve(ctx, request.IdempotencyKey, request.Lines); err != nil {
 		return err
 	}
@@ -60,5 +66,6 @@ func (c *Coordinator) PlaceOrder(ctx context.Context, request Request) error {
 	if err := c.Outbox.Publish(ctx, "fulfillment.created", request.OrderID); err != nil {
 		return err
 	}
+	c.processed[request.IdempotencyKey] = struct{}{}
 	return nil
 }
