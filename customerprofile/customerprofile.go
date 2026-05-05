@@ -15,7 +15,7 @@ type Profile struct {
 }
 
 func NormalizeEmail(email string) (string, error) {
-	normalized := strings.TrimSpace(email)
+	normalized := strings.ToLower(strings.TrimSpace(email))
 	parts := strings.Split(normalized, "@")
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 		return "", fmt.Errorf("invalid email")
