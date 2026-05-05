@@ -14,3 +14,9 @@ func TestCanSendMarketing(t *testing.T) {
 		t.Fatal("opted-in active profile should receive marketing")
 	}
 }
+
+func TestCanSendMarketingRejectsDeletedProfiles(t *testing.T) {
+	if CanSendMarketing(Profile{MarketingOptIn: true, Deleted: true}) {
+		t.Fatal("deleted profile should not receive marketing")
+	}
+}
