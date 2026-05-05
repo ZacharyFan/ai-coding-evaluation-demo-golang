@@ -55,6 +55,8 @@ func (c *Coordinator) PlaceOrder(ctx context.Context, request Request) error {
 		return err
 	}
 	if err := c.Carrier.CreateShipment(ctx, request.OrderID, request.Lines); err != nil {
+		_ = c.Payment.Void(ctx, request.IdempotencyKey)
+		_ = c.Inventory.Release(ctx, request.IdempotencyKey)
 		return err
 	}
 	if err := c.Outbox.Publish(ctx, "fulfillment.created", request.OrderID); err != nil {
