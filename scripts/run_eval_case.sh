@@ -18,10 +18,17 @@ cleanup() {
 trap cleanup EXIT
 
 cd "$ROOT"
+mkdir -p "$TEMP_ROOT"
+packages_file="$TEMP_ROOT/packages.txt"
+go list ./... | grep -v '/evaltmp/' > "$packages_file"
 packages=()
 while IFS= read -r package; do
   packages+=("$package")
-done < <(go list ./... | grep -v '/evaltmp/')
+done < "$packages_file"
+if (( ${#packages[@]} == 0 )); then
+  echo "no Go packages discovered" >&2
+  exit 1
+fi
 go test "${packages[@]}"
 
 shopt -s nullglob
