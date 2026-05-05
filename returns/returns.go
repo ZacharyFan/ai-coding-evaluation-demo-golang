@@ -21,8 +21,8 @@ type Result struct {
 }
 
 func ProcessReturn(request Request, stock inventory.Snapshot, book *ledger.MemoryLedger) (Result, error) {
-	if !orders.CanReturn(request.Order) {
-		return Result{}, fmt.Errorf("order is not returnable")
+	if reason := returnEligibilityReason(request.Order); reason != "" {
+		return Result{}, fmt.Errorf(reason)
 	}
 	refundCents, err := refunds.Amount(request.Order.TotalCents, request.RestockingFeeCents)
 	if err != nil {
@@ -35,4 +35,11 @@ func ProcessReturn(request Request, stock inventory.Snapshot, book *ledger.Memor
 		return Result{}, err
 	}
 	return Result{RefundCents: refundCents}, nil
+}
+
+func returnEligibilityReason(order orders.Order) string {
+	if !orders.CanReturn(order) {
+		return "order is not returnable"
+	}
+	return ""
 }
