@@ -11,3 +11,10 @@ func TestApplyRule(t *testing.T) {
 		t.Fatalf("ApplyRule = %d, want 10825", got)
 	}
 }
+
+func TestValidateRuleRejectsRateAboveCap(t *testing.T) {
+	err := ValidateRule(Rule{Region: "CA", Category: "general", RateBasisPoints: 2501})
+	if err == nil {
+		t.Fatal("ValidateRule accepted rate above cap; want error")
+	}
+}
