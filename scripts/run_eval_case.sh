@@ -18,7 +18,10 @@ cleanup() {
 trap cleanup EXIT
 
 cd "$ROOT"
-mapfile -t packages < <(go list ./... | grep -v '/evaltmp/')
+packages=()
+while IFS= read -r package; do
+  packages+=("$package")
+done < <(go list ./... | grep -v '/evaltmp/')
 go test "${packages[@]}"
 
 shopt -s nullglob
